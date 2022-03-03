@@ -16,8 +16,7 @@ A Câmara dispõe de diversos módulos, como:
 + Fonte de alimentação MB102
                 
 ----
-
-##Manutenção
+##Manutencao
 
 Para a maioria dos casos de mau funcionamento da parte eletrônica da câmara, seguem as seguintes instruções:
 
