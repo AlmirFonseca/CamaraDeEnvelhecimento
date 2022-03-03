@@ -1,5 +1,5 @@
 # CamaraDeEnvelhecimento
-Repositório de manutenção da câmara de envelhecimento, construído para o Dep. Eng. Civil da Universidade Federal de Viçosa.0
+Repositório de manutenção da câmara de envelhecimento, construído para o Dep. Eng. Civil da Universidade Federal de Viçosa.
 
 ## Módulos
 A Câmara dispõe de diversos módulos, como:
@@ -16,8 +16,7 @@ A Câmara dispõe de diversos módulos, como:
 + Fonte de alimentação MB102
                 
 ----
-##Manutencao
-
+## Manutenção
 Para a maioria dos casos de mau funcionamento da parte eletrônica da câmara, seguem as seguintes instruções:
 
                 
