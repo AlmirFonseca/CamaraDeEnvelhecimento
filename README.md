@@ -27,7 +27,7 @@ Para a maioria dos casos de mau funcionamento da parte eletrônica da câmara, s
 	3.1. No caso de mau funcionamento do relógio (RTC DS3231) confira as conexões caso a data seja "165/165/2165", e confira o estado da bateria (CR2032) caso a data seja algo como "01/01/2000".
 	3.2. Caso ocorram erros no arquivamento dos arquivos no cartão de memória, é recomendado retirá-lo e formatá-lo o cartão com o auxílio do <a href=“https://www.sdcard.org/downloads/formatter/“>SD Card Formatter</a>, utilizando a configuração "Overwrite format" (ATENÇÃO, pois isso apagará todos os dados existentes na memória do cartão).
 4. Caso nenhum dos procedimentos acima tenha surtido efeito, é recomendado avaliar a integridade do componente que apresenta mau funcionamento, seja a partir de um outro código para o Arduino, ou seja substituindo esse componente por um similar. Todos os componentes podem ser substituídos, sem serem necessárias alterações no código-fonte do Arduino.
-              
+                
 ----
 
 ##Conexões
