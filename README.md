@@ -29,6 +29,7 @@ Para a maioria dos casos de mau funcionamento da parte eletrônica da câmara, s
 4. Caso nenhum dos procedimentos acima tenha surtido efeito, é recomendado avaliar a integridade do componente que apresenta mau funcionamento, seja a partir de um outro código para o Arduino, ou seja substituindo esse componente por um similar. Todos os componentes podem ser substituídos, sem serem necessárias alterações no código-fonte do Arduino.
                 
 ----
+
 ##Conexões
 [![](https://github.com/AlmirFonseca/CamaraDeEnvelhecimento/blob/main/Diagramas%20de%20montagem/Diagrama%20de%20Montagem.png?raw=true)](https://github.com/AlmirFonseca/CamaraDeEnvelhecimento/blob/main/Diagramas%20de%20montagem/Diagrama%20de%20Montagem.png?raw=true)
 
