@@ -31,7 +31,6 @@ Para a maioria dos casos de mau funcionamento da parte eletrônica da câmara, s
 ----
 
 ##Conexões
-
 [![](https://github.com/AlmirFonseca/CamaraDeEnvelhecimento/blob/main/Diagramas%20de%20montagem/Diagrama%20de%20Montagem.png?raw=true)](https://github.com/AlmirFonseca/CamaraDeEnvelhecimento/blob/main/Diagramas%20de%20montagem/Diagrama%20de%20Montagem.png?raw=true)
 
 + Sensor de Temperatura  DS18B20 (I e II):
