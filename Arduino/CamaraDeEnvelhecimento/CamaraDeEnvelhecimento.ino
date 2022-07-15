@@ -835,8 +835,8 @@ void menu(int totalInstrucoes){
     
     if(encoderValue < 0){
       encoderValue = 0;
-    }else if(encoderValue > 3){
-      encoderValue = 3;
+    }else if(encoderValue > 4){
+      encoderValue = 4;
     }
 
     if(encoderValue == 0){
@@ -912,7 +912,7 @@ void menu(int totalInstrucoes){
       aux = millis();
       while(millis() - aux <= 800){
         lcd.setCursor(5, 1);
-        lcd.print("Voltar");
+        lcd.print("Teste Equipame.");
         
         if(encoderValue != 3 || encoderSW != 0){
           break;
@@ -924,6 +924,28 @@ void menu(int totalInstrucoes){
         lcd.print("                ");
         
         if(encoderValue != 3 || encoderSW != 0){
+          break;
+        }
+      }
+    }else if(encoderValue == 4){
+      lcd.setCursor(0, 1);
+      lcd.print("                ");
+
+      aux = millis();
+      while(millis() - aux <= 800){
+        lcd.setCursor(5, 1);
+        lcd.print("Voltar");
+        
+        if(encoderValue != 4 || encoderSW != 0){
+          break;
+        }
+      }
+      aux = millis();
+      while(millis() - aux <= 100){
+        lcd.setCursor(0, 1);
+        lcd.print("                ");
+        
+        if(encoderValue != 4 || encoderSW != 0){
           break;
         }
       }
@@ -947,8 +969,11 @@ void menu(int totalInstrucoes){
     excluirRotina();
   }else if(encoderValue == 2){
     lcd.clear();
-    dateAux = rtc.now();
     ajustarHorario(dateAux);
+  }else if(encoderValue == 3){
+    lcd.clear();
+    dateAux = rtc.now();
+    testarEquipamentos();
   }else{
     lcd.clear();
     lcd.setCursor(0, 1);
@@ -1533,6 +1558,71 @@ void ajustarHorario(DateTime& dateAux){
   }
 }
 
+void testarEquipamentos(){
+  // Utilizado para testar, individualmente, o sistema de luz UV, chuva e condensação
+  luzUV(false);
+  chuva(false);
+  condensacao(false);
+
+  // Testando lâmpadas UV
+
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Testando:");
+  lcd.setCursor(0, 1);
+  lcd.print("Lampadas UV");
+  luzUV(true);
+
+  encoderSW = 0;
+  while(encoderSW == 0){
+    continue;
+  }
+  
+  luzUV(false);
+
+  // Testando chuva
+
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Testando:");
+  lcd.setCursor(0, 1);
+  lcd.print("Chuva");
+  chuva(true);
+
+  encoderSW = 0;
+  while(encoderSW == 0){
+    continue;
+  }
+
+  chuva(false);
+
+  // Testando condensação
+
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Testando:");
+  lcd.setCursor(0, 1);
+  lcd.print("Condensacao");
+  condensacao(true);
+
+  encoderSW = 0;
+  while(encoderSW == 0){
+    continue;
+  }
+
+  condensacao(false);
+
+  // Retornando os relés à fase atual da rotina
+
+  if(faseAtual == 1){
+    luzUV(true);
+  }else if(faseAtual == 2){
+    chuva(true);
+  }else if(faseAtual == 3){
+    condensacao(true);
+  }
+}
+
 void continuarRotina(){ /////////////////////////////////////////////////////////////////////////////////////// REGISTRAR O MOMENTO DA REINICIALIZAÇÃO NO SD
   // preencher as arrays 
   dataFile = SD.open("data.txt", FILE_READ);
@@ -1627,7 +1717,6 @@ void continuarRotina(){ ////////////////////////////////////////////////////////
   // Dessa forma, enviando a instrução anterior, o loop irá reconhecer que possui um timeStamp obsoleto e irá encaminhar para o atualizarCiclo, que restitui os estados dos pinos de controle dos relays
 
   previousSensorLog = now.unixtime() - tempoEntreArquivamentos;
-
 }
 
 void atualizarCiclo(DateTime& rtcTime, int totalInstrucoes){
