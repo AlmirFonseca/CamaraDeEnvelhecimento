@@ -3,7 +3,7 @@
 #include "RTClib.h"
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#include <LiquidCrystal.h>
+#include <LiquidCrystal_I2C.h>
 #include <SPI.h>
 #include <SD.h>
 #include "EncoderStepCounter.h"
@@ -14,6 +14,10 @@
 #define RELAY_CHUVA 4
 #define RELAY_CONDENSACAO 5
 bool isChuva, isLuzUV, isCondensacao; // Variáveis que contém o estado atual dos relays
+
+// Como os relés são "low level triggered" (se ativam em LOW), os valores de ON e OFF são, respectivamente, 0 e 1
+#define ON 0
+#define OFF 1
 
 #define DHTPIN 8
 #define DHTTYPE DHT22 // Aponta qual é o modelo do sensor de umidade
@@ -44,9 +48,7 @@ char dateBuffer[10];
 char timeBuffer[8];
 char LCDTimeBuffer[5];
 
-#define LCD_BACKLIGHT 28
-const byte rs = 22, en = 23, d4 = 24, d5 = 25, d6 = 26, d7 = 27;
-LiquidCrystal lcd(rs, en, d4, d5, d6, d7); // Declara o display como um objeto chamado "lcd"
+LiquidCrystal_I2C lcd(0x27, 16, 2); // Declara o display como um objeto chamado "lcd", de endereço I2C 0x27, x colunas e y linhas; Nesse caso, lcd(0x27, 16, 2);
 byte aoQuadrado[] = {B01100,B10010,B00100,B01000,B11110,B00000,B00000,B00000};
 char LCDCiclosText[6];
 int dadoLCD = 0;
@@ -119,10 +121,9 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(INTERRUPT_DT_PIN), encoderInterrupt, CHANGE);
   attachInterrupt(digitalPinToInterrupt(INTERRUPT_CLK_PIN), encoderInterrupt, CHANGE);
 
-  pinMode(LCD_BACKLIGHT, OUTPUT);
-  lcd.begin(16, 2); // Inicia o display lcd(x, y), de x colunas e y linhas; Nesse caso, lcd(16,2);
+  lcd.init(); // Inicia o display lcd
   Serial.println(F("Display LCD ligado")); // Informa, na porta serial, que o display esta ligado
-  lcdBacklight(); // Liga a luz de fundo do display
+  lcd.backlight(); // Liga a luz de fundo do display
   lcd.createChar(0, aoQuadrado);
 
   Serial.print(F("Iniciando cartão SD... "));
@@ -666,14 +667,6 @@ void crashLog(String errorMessage){
   }
 }
 
-void lcdBacklight(){
-  digitalWrite(LCD_BACKLIGHT, HIGH);
-}
-
-void lcdNoBacklight(){
-  digitalWrite(LCD_BACKLIGHT, LOW);
-}
-
 void novaRotina(){
 
   Serial.println(F("Configurando uma nova rotina..."));
@@ -750,7 +743,8 @@ void novaRotina(){
       checkpoints[1][j] = i;
       checkpointsTimestamps[j] = aux;
       checkpoints[2][j] = 1;
-      aux += 28800; // Duração de cada ciclo UV em segundos
+      // aux += 28800; // Duração de cada ciclo UV em segundos
+      aux += 30; // Duração de cada ciclo UV em segundos
       j++;
       sprintf(dataCiclo, "0:%03d:%10ld:2", i, aux);
       Serial.println(dataCiclo);
@@ -758,7 +752,8 @@ void novaRotina(){
       checkpoints[1][j] = i;
       checkpointsTimestamps[j] = aux;
       checkpoints[2][j] = 2;
-      aux += 900; // Duração de cada ciclo UV em segundos
+      // aux += 900; // Duração de cada ciclo de chuva em segundos
+      aux += 30; // Duração de cada ciclo de chuva em segundos
       j++;
       sprintf(dataCiclo, "0:%03d:%10ld:3", i, aux);
       Serial.println(dataCiclo);
@@ -766,7 +761,8 @@ void novaRotina(){
       checkpoints[1][j] = i;
       checkpointsTimestamps[j] = aux;
       checkpoints[2][j] = 3;
-      aux += 13500; // Duração de cada ciclo UV em segundos
+      // aux += 13500; // Duração de cada ciclo de condensação em segundos
+      aux += 30; // Duração de cada ciclo de condensação em segundos
       j++;
     }
     sprintf(dataCiclo, "0:%03d:%10ld:0", totalCiclos, aux);
@@ -911,7 +907,7 @@ void menu(int totalInstrucoes){
 
       aux = millis();
       while(millis() - aux <= 800){
-        lcd.setCursor(5, 1);
+        lcd.setCursor(0, 1);
         lcd.print("Teste Equipame.");
         
         if(encoderValue != 3 || encoderSW != 0){
@@ -973,7 +969,7 @@ void menu(int totalInstrucoes){
   }else if(encoderValue == 3){
     lcd.clear();
     dateAux = rtc.now();
-    testarEquipamentos();
+    testarEquipamentos(totalInstrucoes);
   }else{
     lcd.clear();
     lcd.setCursor(0, 1);
@@ -1558,7 +1554,7 @@ void ajustarHorario(DateTime& dateAux){
   }
 }
 
-void testarEquipamentos(){
+void testarEquipamentos(int ftotalInstrucoes){
   // Utilizado para testar, individualmente, o sistema de luz UV, chuva e condensação
   luzUV(false);
   chuva(false);
@@ -1567,15 +1563,14 @@ void testarEquipamentos(){
   // Testando lâmpadas UV
 
   lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.print("Testando:");
-  lcd.setCursor(0, 1);
-  lcd.print("Lampadas UV");
   luzUV(true);
 
   encoderSW = 0;
   while(encoderSW == 0){
-    continue;
+    lcd.setCursor(0, 0);
+    lcd.print("Testando:");
+    lcd.setCursor(0, 1);
+    lcd.print("Lampadas UV");
   }
   
   luzUV(false);
@@ -1583,15 +1578,14 @@ void testarEquipamentos(){
   // Testando chuva
 
   lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.print("Testando:");
-  lcd.setCursor(0, 1);
-  lcd.print("Chuva");
   chuva(true);
 
   encoderSW = 0;
-  while(encoderSW == 0){
-    continue;
+  while(encoderSW == 0){  
+    lcd.setCursor(0, 0);
+    lcd.print("Testando:");
+    lcd.setCursor(0, 1);
+    lcd.print("Chuva");
   }
 
   chuva(false);
@@ -1599,15 +1593,14 @@ void testarEquipamentos(){
   // Testando condensação
 
   lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.print("Testando:");
-  lcd.setCursor(0, 1);
-  lcd.print("Condensacao");
   condensacao(true);
 
   encoderSW = 0;
   while(encoderSW == 0){
-    continue;
+    lcd.setCursor(0, 0);
+    lcd.print("Testando:");
+    lcd.setCursor(0, 1);
+    lcd.print("Condensacao");
   }
 
   condensacao(false);
@@ -1621,6 +1614,8 @@ void testarEquipamentos(){
   }else if(faseAtual == 3){
     condensacao(true);
   }
+
+  menu(totalInstrucoes);
 }
 
 void continuarRotina(){ /////////////////////////////////////////////////////////////////////////////////////// REGISTRAR O MOMENTO DA REINICIALIZAÇÃO NO SD
@@ -1988,7 +1983,7 @@ void luzUV(bool estadoLuzUV){
   dataFile = SD.open("luzuv.csv", FILE_WRITE);
 
   if(estadoLuzUV == true){
-    digitalWrite(RELAY_LUZUV, HIGH);
+    digitalWrite(RELAY_LUZUV, ON);
     isLuzUV = true;
     Serial.println(F("Lâmpadas UV ligadas"));
     if(dataFile){
@@ -2009,7 +2004,7 @@ void luzUV(bool estadoLuzUV){
       resetFunc();
     }
   }else{
-    digitalWrite(RELAY_LUZUV, LOW);
+    digitalWrite(RELAY_LUZUV, OFF);
     isLuzUV = false;
     Serial.println(F("Lâmpadas UV desligadas"));
     if(dataFile){
@@ -2037,7 +2032,7 @@ void chuva(bool estadoChuva){
   dataFile = SD.open("chuva.csv", FILE_WRITE);
 
   if(estadoChuva == true){
-    digitalWrite(RELAY_CHUVA, HIGH);
+    digitalWrite(RELAY_CHUVA, ON);
     isChuva = true;
     Serial.println(F("Chuva ligada"));
     if(dataFile){
@@ -2058,7 +2053,7 @@ void chuva(bool estadoChuva){
       resetFunc();
     }
   }else{
-    digitalWrite(RELAY_CHUVA, LOW);
+    digitalWrite(RELAY_CHUVA, OFF);
     isChuva = false;
     Serial.println(F("Chuva desligada"));
     if(dataFile){
@@ -2086,7 +2081,7 @@ void condensacao(bool estadoCondensacao){
   dataFile = SD.open("condens.csv", FILE_WRITE);
 
   if(estadoCondensacao == true){
-    digitalWrite(RELAY_CONDENSACAO, HIGH);
+    digitalWrite(RELAY_CONDENSACAO, ON);
     isCondensacao = true;
     Serial.println(F("Condensação ligada"));
     if(dataFile){
@@ -2107,7 +2102,7 @@ void condensacao(bool estadoCondensacao){
       resetFunc();
     }
   }else{
-    digitalWrite(RELAY_CONDENSACAO, LOW);
+    digitalWrite(RELAY_CONDENSACAO, OFF);
     isCondensacao = false;
     Serial.println(F("Condensação desligada"));
     if(dataFile){
