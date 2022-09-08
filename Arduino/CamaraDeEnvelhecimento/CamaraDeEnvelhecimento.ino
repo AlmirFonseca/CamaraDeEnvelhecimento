@@ -78,10 +78,13 @@ int numeroMaxDeCiclos = 84;
 byte checkpoints[3][253] = {0};
 long int checkpointsTimestamps[253] = {0};
 
- // Define as durações padrão dos ciclos (em minutos)
-int duracaoCicloUV = 480; // 08:00:00
-int duracaoCicloChuva = 15; // 00:15:00
-int duracaoCicloCondensacao = 225; // 03:45:00
+// Define as durações padrão dos ciclos (em minutos)
+int duracaoCiclos[3] = {480, 15, 225};
+/*
+duracaoCiclos[0] = 480; // Duração do ciclo UV: 08:00:00
+duracaoCiclos[1] = 15; // Duração do ciclo de chuva: 00:15:00
+duracaoCiclos[2] = 225; // Duração do ciclo de condensação: 03:45:00
+*/
 
 int tempoEntreArquivamentos = 300; // Declara o tempo, em segundos, entre cada atualização nos dados salvos nos arquivos do cartão de memória
 
@@ -748,7 +751,7 @@ void novaRotina(){
       checkpoints[1][j] = i;
       checkpointsTimestamps[j] = aux;
       checkpoints[2][j] = 1;
-      aux += duracaoCicloUV * 60; // Duração de cada ciclo UV em segundos
+      aux += duracaoCiclos[0] * 60; // Duração de cada ciclo UV em segundos
       j++;
       sprintf(dataCiclo, "0:%03d:%10ld:2", i, aux);
       Serial.println(dataCiclo);
@@ -756,7 +759,7 @@ void novaRotina(){
       checkpoints[1][j] = i;
       checkpointsTimestamps[j] = aux;
       checkpoints[2][j] = 2;
-      aux += duracaoCicloChuva * 60; // Duração de cada ciclo de chuva em segundos
+      aux += duracaoCiclos[1] * 60; // Duração de cada ciclo de chuva em segundos
       j++;
       sprintf(dataCiclo, "0:%03d:%10ld:3", i, aux);
       Serial.println(dataCiclo);
@@ -764,7 +767,7 @@ void novaRotina(){
       checkpoints[1][j] = i;
       checkpointsTimestamps[j] = aux;
       checkpoints[2][j] = 3;
-      aux += duracaoCicloCondensacao * 60; // Duração de cada ciclo de condensação em segundos
+      aux += duracaoCiclos[2] * 60; // Duração de cada ciclo de condensação em segundos
       j++;
     }
     sprintf(dataCiclo, "0:%03d:%10ld:0", totalCiclos, aux);
