@@ -78,6 +78,11 @@ int numeroMaxDeCiclos = 84;
 byte checkpoints[3][253] = {0};
 long int checkpointsTimestamps[253] = {0};
 
+ // Define as durações padrão dos ciclos (em minutos)
+int duracaoCicloUV = 480; // 08:00:00
+int duracaoCicloChuva = 15; // 00:15:00
+int duracaoCicloCondensacao = 225; // 03:45:00
+
 int tempoEntreArquivamentos = 300; // Declara o tempo, em segundos, entre cada atualização nos dados salvos nos arquivos do cartão de memória
 
 int umidade; // Variável que armazena a umidade
@@ -743,8 +748,7 @@ void novaRotina(){
       checkpoints[1][j] = i;
       checkpointsTimestamps[j] = aux;
       checkpoints[2][j] = 1;
-      // aux += 28800; // Duração de cada ciclo UV em segundos
-      aux += 30; // Duração de cada ciclo UV em segundos
+      aux += duracaoCicloUV * 60; // Duração de cada ciclo UV em segundos
       j++;
       sprintf(dataCiclo, "0:%03d:%10ld:2", i, aux);
       Serial.println(dataCiclo);
@@ -752,8 +756,7 @@ void novaRotina(){
       checkpoints[1][j] = i;
       checkpointsTimestamps[j] = aux;
       checkpoints[2][j] = 2;
-      // aux += 900; // Duração de cada ciclo de chuva em segundos
-      aux += 30; // Duração de cada ciclo de chuva em segundos
+      aux += duracaoCicloChuva * 60; // Duração de cada ciclo de chuva em segundos
       j++;
       sprintf(dataCiclo, "0:%03d:%10ld:3", i, aux);
       Serial.println(dataCiclo);
@@ -761,8 +764,7 @@ void novaRotina(){
       checkpoints[1][j] = i;
       checkpointsTimestamps[j] = aux;
       checkpoints[2][j] = 3;
-      // aux += 13500; // Duração de cada ciclo de condensação em segundos
-      aux += 30; // Duração de cada ciclo de condensação em segundos
+      aux += duracaoCicloCondensacao * 60; // Duração de cada ciclo de condensação em segundos
       j++;
     }
     sprintf(dataCiclo, "0:%03d:%10ld:0", totalCiclos, aux);
@@ -1969,7 +1971,7 @@ int mediaAnalogica(int pinoAnalogico){
 
   for(int x = 0 ; x < numeroDeLeituras ; x++)
     valor += analogRead(pinoAnalogico);
-    valor /= numeroDeLeituras;
+  valor /= numeroDeLeituras;
 
   return valor; 
 }
