@@ -63,13 +63,19 @@ int lixo2 = 0;
 const int CS = 53; // Determina o ultimo pino
 File dataFile;
 
+// Define as variáveis relacionadas ao Rotary Encoder
 #define INTERRUPT_SW_PIN 2
 #define INTERRUPT_DT_PIN 19
 #define INTERRUPT_CLK_PIN 18
 signed long int encoderValue = 0;
 signed char encoderPosition;
 unsigned long int lastButtonPress = 0;
+int debounceTimeMillis = 100;
+int holdTimeMillis = 2000;
+bool debounced = true;
+int SWState;
 int encoderSW = 0;
+bool toMenu = false;
 EncoderStepCounter encoder(INTERRUPT_CLK_PIN, INTERRUPT_DT_PIN, HALF_STEP);
 
 // Para alterar o número máximo de ciclos, basta alterar a variável abaixo
@@ -125,7 +131,7 @@ void setup() {
   pinMode(INTERRUPT_CLK_PIN, INPUT);
   
   encoder.begin();
-  attachInterrupt(digitalPinToInterrupt(INTERRUPT_SW_PIN), buttonInterrupt, FALLING);
+  attachInterrupt(digitalPinToInterrupt(INTERRUPT_SW_PIN), buttonInterrupt, CHANGE);
   attachInterrupt(digitalPinToInterrupt(INTERRUPT_DT_PIN), encoderInterrupt, CHANGE);
   attachInterrupt(digitalPinToInterrupt(INTERRUPT_CLK_PIN), encoderInterrupt, CHANGE);
 
@@ -602,8 +608,9 @@ void loop() {
     // Delay de 10 seg
     aux = millis();
     while(millis() - aux < 10000){
-      if(encoderSW == 1){
+      if(toMenu){
         // Abre o Menu
+        toMenu = false;
         encoderSW = 0;
         menu(totalInstrucoes);
       }
@@ -633,11 +640,39 @@ void watchdog_reset(){
 }
 
 void buttonInterrupt(){
-  if(millis() - lastButtonPress >= 200){
-    lastButtonPress = millis();
-    encoderSW = 1;
+  SWState = digitalRead(INTERRUPT_SW_PIN);
+
+  // Indica um RAISING
+  if(SWState){
+    // Se o pressionamento do botão for válido
+    if(debounced){
+      debounced = false;
+      // Indica um LONG PRESS
+      if(millis() - lastButtonPress >= holdTimeMillis){
+        toMenu = true;
+        encoderSW = 1;
+      // Indica um SHORT PRESS
+      }else{
+        toMenu = false;
+        encoderSW = 1;
+      }
+      lastButtonPress = millis();
+    }else{
+      // Se o pressionamento do botão for inválido
+    }
+  // Indica um FALLING
+  }else{
+    // Indica um debounce = true
+    if(millis() - lastButtonPress >= debounceTimeMillis){
+      debounced = true;
+      lastButtonPress = millis();
+    // Indica um debounce = false
+    }else{
+      debounced = false;
+    }   
   }
 }
+
 
 void encoderInterrupt(){
   encoder.tick();
@@ -982,6 +1017,8 @@ void menu(int totalInstrucoes){
 
     Serial.println(F("Retornando à rotina..."));
     Serial.println();
+
+    toMenu = false;
   }
 }
 
