@@ -673,7 +673,6 @@ void buttonInterrupt(){
   }
 }
 
-
 void encoderInterrupt(){
   encoder.tick();
 
@@ -716,6 +715,8 @@ void novaRotina(){
   
   lcd.clear();
 
+  // Seleção do número de ciclos
+
   lcd.setCursor(0, 0);
   lcd.print("Nova rotina:");
   lcd.setCursor(4, 1);
@@ -741,7 +742,7 @@ void novaRotina(){
 
     lcd.setCursor(0, 1);
     lcd.print("   ");
-    //delay(150);
+
     aux = millis();
     while(millis() - aux <= 100){
       
@@ -754,13 +755,143 @@ void novaRotina(){
       totalCiclos = encoderValue;      
     }
   }
-  encoderSW = 0;
   
   Serial.print(F("Nova rotina de: "));
   Serial.print((String)totalCiclos);
   Serial.println(F(" ciclos"));
 
+  delay(1000);
+
   lcd.clear();
+
+  // Seleção da duração do ciclo UV
+
+  lcd.setCursor(0, 0);
+  lcd.print("Ciclo UV:");
+  lcd.setCursor(5, 1);
+  lcd.print("minutos");
+
+  encoderValue = duracaoCiclos[0];
+  encoderSW = 0;
+  while(encoderSW == 0){
+    aux = millis();
+    while(millis() - aux <= 800){
+     
+      if(encoderValue < 1){
+        encoderValue = 1;
+      }else if(encoderValue > 1000){
+        encoderValue = 1000;
+      }
+  
+      duracaoCiclos[0] = encoderValue;
+      lcd.setCursor(0, 1);
+      lcd.print(duracaoCiclos[0]);
+    }
+
+    lcd.setCursor(0, 1);
+    lcd.print("    ");
+
+    aux = millis();
+    while(millis() - aux <= 100){
+      
+      if(encoderValue < 1){
+        encoderValue = 1;
+      }else if(encoderValue > 1000){
+        encoderValue = 1000;
+      }
+      
+      duracaoCiclos[0] = encoderValue;      
+    }
+  }
+
+  lcd.clear();
+
+  // Seleção da duração do ciclo de chuva
+
+  lcd.setCursor(0, 0);
+  lcd.print("Ciclo Chuva:");
+  lcd.setCursor(5, 1);
+  lcd.print("minutos");
+
+  encoderValue = duracaoCiclos[1];
+  encoderSW = 0;
+  while(encoderSW == 0){
+    aux = millis();
+    while(millis() - aux <= 800){
+     
+      if(encoderValue < 1){
+        encoderValue = 1;
+      }else if(encoderValue > 1000){
+        encoderValue = 1000;
+      }
+  
+      duracaoCiclos[1] = encoderValue;
+      lcd.setCursor(0, 1);
+      lcd.print(duracaoCiclos[1]);
+    }
+
+    lcd.setCursor(0, 1);
+    lcd.print("    ");
+
+    aux = millis();
+    while(millis() - aux <= 100){
+      
+      if(encoderValue < 1){
+        encoderValue = 1;
+      }else if(encoderValue > 1000){
+        encoderValue = 1000;
+      }
+      
+      duracaoCiclos[1] = encoderValue;      
+    }
+  }
+
+  lcd.clear();
+
+  // Seleção da duração do ciclo de condensação
+
+  lcd.setCursor(0, 0);
+  lcd.print("Ciclo Condens.:");
+  lcd.setCursor(5, 1);
+  lcd.print("minutos");
+
+  encoderValue = duracaoCiclos[2];
+  encoderSW = 0;
+  while(encoderSW == 0){
+    aux = millis();
+    while(millis() - aux <= 800){
+     
+      if(encoderValue < 1){
+        encoderValue = 1;
+      }else if(encoderValue > 1000){
+        encoderValue = 1000;
+      }
+  
+      duracaoCiclos[2] = encoderValue;
+      lcd.setCursor(0, 1);
+      lcd.print(duracaoCiclos[2]);
+    }
+
+    lcd.setCursor(0, 1);
+    lcd.print("    ");
+
+    aux = millis();
+    while(millis() - aux <= 100){
+      
+      if(encoderValue < 1){
+        encoderValue = 1;
+      }else if(encoderValue > 1000){
+        encoderValue = 1000;
+      }
+      
+      duracaoCiclos[2] = encoderValue;      
+    }
+  }
+
+  lcd.clear();
+  encoderSW = 0;
+
+  // Geração dos timestamps da rotina
 
   lcd.setCursor(0, 0);
   lcd.print("Configurando:");
